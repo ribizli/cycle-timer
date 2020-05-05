@@ -5,8 +5,8 @@
   "background_color": "#cbcbcb",
   "display": "fullscreen",
   "orientation": "portrait",
-  "Scope": "/",
-  "start_url": "/",
+  "Scope": "/cycle-timer/",
+  "start_url": "/cycle-timer/",
   "icons": [
     {
       "src": "images/icons/icon-72x72.png",
