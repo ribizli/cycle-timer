@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset='utf-8'>
+	<meta name='viewport' content='width=device-width, initial-scale=1'>
+	<meta name="theme-color" content="#8e8e8e">
+	<link rel='manifest' href='./manifest.json'>
+
+	<title>Cycle Timer</title>
+
+	<link rel="shortcut icon" href="images/timer.svg">
+	<link rel='stylesheet' href='/global.css'>
+	<link rel='stylesheet' href='/build/bundle.css'>
+
+	<script defer src='/build/bundle.js'></script>
+
+	<script>
+		// Registering our Service worker
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('sw.js', { scope: './' })
+		}
+	</script>
+
+</head>
+
+<body>
+</body>
+
+</html>
