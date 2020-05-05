@@ -13,6 +13,7 @@ let currentSetter = null;
 
 export const current = derived([_config, currentIdx], ([config, idx], set) => {
   currentSetter = set;
+  if (!config.length) return set(null);
   const realIdx = idx % config.length;
   const item = idx != null && config[realIdx];
   if (!item) return set(null);
@@ -20,7 +21,7 @@ export const current = derived([_config, currentIdx], ([config, idx], set) => {
 });
 
 export const round = derived([_config, currentIdx], ([config, idx]) => {
-  return idx != null ? Math.floor(idx / config.length) + 1 : 0;
+  return idx != null && config.length ? Math.floor(idx / config.length) + 1 : 0;
 });
 
 export const config = {
