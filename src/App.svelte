@@ -12,7 +12,10 @@
   import { formatTime, timeInputValue } from "./utils";
   import Countdown from "./Countdown.svelte";
 
-  $config = [{ name: "action", time: 10 }, { name: "break", time: 5 }];
+  console.log($config);
+  if (!($config && $config.length)) {
+    $config = [{ name: "action", time: 60 }, { name: "break", time: 15 }];
+  }
 
   let configInputs = $config.map(c => ({
     name: c.name,
@@ -21,6 +24,20 @@
 
   $: timeLeft = ($current && $current.timeLeft) || 0;
   $: currentIndex = $current && $current.index;
+
+  $: {
+    if (timeLeft < 4 && timeLeft > 0) {
+      new Audio('sound/beep-ping.mp3').play();
+    } else if (timeLeft === 0) {
+      new Audio('sound/horn-honk.mp3').play();
+    }
+  }
+
+  $: {
+    if (currentIndex != null) {
+      new Audio('sound/electronic-chime.mp3').play();
+    }
+  }
 
   const onStart = () => {
     if ($started && $running) return pause();
@@ -51,14 +68,14 @@
     flex-direction: column;
     justify-content: center;
     height: 100vh;
-		overflow: auto;
+    overflow: auto;
   }
 
   main > div {
     flex: 0 0 auto;
     text-align: center;
     font-size: 5vw;
-		max-height: 100%;
+    max-height: 100%;
   }
 
   .input-row {
@@ -71,7 +88,7 @@
     border-bottom: 1px solid lightgray;
     margin: 0 2vw;
     padding: 0;
-		background: transparent;
+    background: transparent;
   }
   .input-row input:read-only {
     border: none;
@@ -81,21 +98,21 @@
     text-align: right;
   }
   .input-row.active {
-		background-color: lightgray;
+    background-color: lightgray;
   }
 
-	.started .input-row button {
-		visibility: hidden;
-	}
+  .started .input-row button {
+    visibility: hidden;
+  }
 
-	.started .add {
-		visibility: hidden;
-	}
+  .started .add {
+    visibility: hidden;
+  }
 
   button {
     background: transparent;
     border: none;
-		margin: 0;
+    margin: 0;
   }
   button > img {
     width: 6vw;
@@ -124,14 +141,14 @@
         <input bind:value={item.time.value$} readonly={$started} class="time" />
         <input bind:value={item.name} readonly={$started} class="name" />
         <button on:click={() => removeConfig(idx)}>
-					<img src="images/remove.svg" alt="remove" />
-				</button>
+          <img src="images/remove.svg" alt="remove" />
+        </button>
       </div>
     {/each}
     <div class="add">
       <button on:click={addConfig}>
-				<img src="images/add.svg" alt="add" />
-			</button>
+        <img src="images/add.svg" alt="add" />
+      </button>
     </div>
   </div>
 </main>

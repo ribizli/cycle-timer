@@ -3,10 +3,10 @@
   "short_name": "CycleTimer",
   "theme_color": "#8e8e8e",
   "background_color": "#cbcbcb",
-  "display": "fullscreen",
+  "display": "standalone",
   "orientation": "portrait",
-  "Scope": "/cycle-timer/",
-  "start_url": "/cycle-timer/",
+  "scope": "./",
+  "start_url": "./",
   "icons": [
     {
       "src": "images/icons/icon-72x72.png",

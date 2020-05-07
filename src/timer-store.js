@@ -1,6 +1,8 @@
 import { writable, derived, get } from 'svelte/store';
 
-const _config = writable([]);
+const configStorageKey = 'cyclic-timer-config';
+
+const _config = writable(loadConfig());
 
 const currentIdx = writable(null);
 
@@ -29,6 +31,7 @@ export const config = {
   set: value => {
     stop();
     _config.set(value);
+    saveConfig(value);
   },
   update: updater => config.set(updater(get(_config))),
 };
@@ -66,4 +69,18 @@ export const stop = () => {
 
 export const pause = () => {
   cancelInterval();
+}
+
+function loadConfig() {
+  let config = null;
+  try {
+    config = JSON.parse(localStorage.getItem(configStorageKey));
+  } catch (e) {
+    console.error(e);
+  }
+  return config || [];
+}
+
+function saveConfig(config) {
+  localStorage.setItem(configStorageKey, JSON.stringify(config));
 }
