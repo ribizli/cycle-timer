@@ -8,7 +8,7 @@
 
 <style>
   div {
-    font-size: 20vw;
+    font-size: 3em;
     text-align: center;
     font-variant-numeric: tabular-nums;
   }

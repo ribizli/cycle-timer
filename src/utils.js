@@ -1,7 +1,8 @@
 export const formatTime = time => {
+  if (time < 0) return ':';
   let mins = Math.floor(time / 60);
   let secs = time % 60;
-  return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  return `${mins < 10 ? `0${mins}` : mins}:${secs < 10 ? `0${secs}` : secs}`;
 };
 
 export const parseTime = timeString => {
@@ -25,8 +26,8 @@ export const inputValueWrapper = (converter, initial = null) => {
       return _value$;
     },
     set value$(str) {
-      _value$ = str;
       value = converter.value(str);
+      _value$ = str;
     },
   };
 };

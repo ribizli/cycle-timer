@@ -12,17 +12,18 @@
   import { formatTime, timeInputValue } from "./utils";
   import Countdown from "./Countdown.svelte";
 
-  console.log($config);
   if (!($config && $config.length)) {
     $config = [{ name: "action", time: 60 }, { name: "break", time: 15 }];
   }
 
-  let configInputs = $config.map(c => ({
+  const createInputs = () => $config.map(c => ({
     name: c.name,
     time: timeInputValue(c.time)
   }));
 
-  $: timeLeft = ($current && $current.timeLeft) || 0;
+  let configInputs = createInputs();
+
+  $: timeLeft = $current ? $current.timeLeft : -1;
   $: currentIndex = $current && $current.index;
 
   $: {
@@ -48,6 +49,7 @@
         name: input.name,
         time: input.time.value
       }));
+      configInputs = createInputs();
     }
     start(!$started);
   };
@@ -57,8 +59,13 @@
   };
 
   const addConfig = () => {
-    configInputs = [...configInputs, { name: "new", time: timeInputValue(0) }];
+    configInputs = [...configInputs, { name: "new", time: timeInputValue(10) }];
   };
+
+  let screenWidth = 250;
+
+  $: scale = screenWidth / 250;
+
 </script>
 
 <style>
@@ -66,36 +73,48 @@
     display: flex;
     align-content: center;
     flex-direction: column;
-    justify-content: center;
-    height: 100vh;
+    height: 100%;
+    max-height: 100%;
     overflow: auto;
   }
 
   main > div {
     flex: 0 0 auto;
     text-align: center;
-    font-size: 5vw;
-    max-height: 100%;
+    width: 250px;
+    padding: 20px;
+    margin: 0 auto;
+    transform-origin: top;
+    box-sizing: border-box;
+  }
+
+  .round {
+    font-size: 1.5em;
+    margin: .25em 0;
   }
 
   .input-row {
     display: flex;
-    margin: 0 20%;
-    font-size: 3vw;
   }
   .input-row input {
     border: none;
     border-bottom: 1px solid lightgray;
-    margin: 0 2vw;
-    padding: 0;
+    padding: 0 5px;
+    margin: 0;
     background: transparent;
   }
   .input-row input:read-only {
     border: none;
   }
   .input-row input.time {
-    width: 12vw;
+    flex: 0 0 auto;
     text-align: right;
+    width: 3.2em;
+    font-variant-numeric: tabular-nums;
+  }
+  .input-row input.name {
+    flex: 1 1 auto;
+    width: 0;
   }
   .input-row.active {
     background-color: lightgray;
@@ -115,13 +134,13 @@
     margin: 0;
   }
   button > img {
-    width: 6vw;
-    height: 6vw;
+    width: 24px;
+    height: 24px;
   }
 </style>
 
-<main>
-  <div class:running={$running} class:started={$started}>
+<main bind:offsetWidth={screenWidth}>
+  <div class:running={$running} class:started={$started} style="transform: scale({scale});">
     <div class="buttons">
       <button on:click={onStart}>
         {#if $running}
