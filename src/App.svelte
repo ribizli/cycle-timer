@@ -10,7 +10,10 @@
     round
   } from "./timer-store";
   import { formatTime, timeInputValue } from "./utils";
+  import { timeInputMask } from './time-input-mask'
   import Countdown from "./Countdown.svelte";
+
+  let video;
 
   if (!($config && $config.length)) {
     $config = [{ name: "action", time: 60 }, { name: "break", time: 15 }];
@@ -41,7 +44,10 @@
   }
 
   const onStart = () => {
-    if ($started && $running) return pause();
+    if ($started && $running) {
+      video.pause();
+      return pause();
+    }
 
     // update config
     if (!$started) {
@@ -51,7 +57,13 @@
       }));
       configInputs = createInputs();
     }
+    video.play();
     start(!$started);
+  };
+
+  const onStop = () => {
+    video.pause();
+    stop();
   };
 
   const removeConfig = idx => {
@@ -137,6 +149,10 @@
     width: 24px;
     height: 24px;
   }
+
+  video {
+    display: none;
+  }
 </style>
 
 <main bind:offsetWidth={screenWidth}>
@@ -149,7 +165,7 @@
           <img src="images/play.svg" alt="play" />
         {/if}
       </button>
-      <button on:click={() => stop()}>
+      <button on:click={onStop}>
         <img src="images/stop.svg" alt="stop" />
       </button>
     </div>
@@ -157,7 +173,7 @@
     <Countdown time={timeLeft} />
     {#each configInputs as item, idx (item)}
       <div class="input-row" class:active={idx === currentIndex}>
-        <input bind:value={item.time.value$} readonly={$started} class="time" />
+        <input bind:value={item.time.value$} use:timeInputMask readonly={$started} class="time" />
         <input bind:value={item.name} readonly={$started} class="name" />
         <button on:click={() => removeConfig(idx)}>
           <img src="images/remove.svg" alt="remove" />
@@ -171,3 +187,8 @@
     </div>
   </div>
 </main>
+<video bind:this={video} loop muted playsinline>
+  <source src="video/blank.m4v">
+  <source src="video/blank.ogv" type="video/ogg">
+  <source src="video/blank.webm" type="video/webm">
+</video>
