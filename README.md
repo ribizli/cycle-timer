@@ -3,3 +3,9 @@
 
 ### TODO
 
+inputType: 
+  * deleteByCut
+  * deleteContentBackward
+  * insertText
+  
+
