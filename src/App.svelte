@@ -10,10 +10,9 @@
     round
   } from "./timer-store";
   import { formatTime, timeInputValue } from "./utils";
+  import { requestWakeLock, releaseWakeLock } from './wake-lock';
   import { timeInputMask } from './time-input-mask'
   import Countdown from "./Countdown.svelte";
-
-  let video;
 
   if (!($config && $config.length)) {
     $config = [{ name: "action", time: 60 }, { name: "break", time: 15 }];
@@ -43,9 +42,9 @@
     }
   }
 
-  const onStart = () => {
+  const onStart = async () => {
     if ($started && $running) {
-      video.pause();
+      await releaseWakeLock();
       return pause();
     }
 
@@ -57,12 +56,12 @@
       }));
       configInputs = createInputs();
     }
-    video.play();
+    await requestWakeLock();
     start(!$started);
   };
 
-  const onStop = () => {
-    video.pause();
+  const onStop = async () => {
+    releaseWakeLock();
     stop();
   };
 
@@ -149,10 +148,6 @@
     width: 24px;
     height: 24px;
   }
-
-  video {
-    display: none;
-  }
 </style>
 
 <main bind:offsetWidth={screenWidth}>
@@ -187,8 +182,3 @@
     </div>
   </div>
 </main>
-<video bind:this={video} loop muted playsinline>
-  <source src="video/blank.m4v">
-  <source src="video/blank.ogv" type="video/ogg">
-  <source src="video/blank.webm" type="video/webm">
-</video>
