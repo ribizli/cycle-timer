@@ -3,6 +3,8 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
+import html from '@rollup/plugin-html';
+import { readFileSync } from 'fs';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -12,7 +14,9 @@ export default {
 		sourcemap: true,
 		format: 'iife',
 		name: 'app',
-		file: 'docs/build/bundle.js'
+		dir: 'docs',
+		//file: 'docs/build/bundle.js',
+		entryFileNames: `build/bundle${production ? '-[hash]' : ''}.js`,
 	},
 	plugins: [
 		svelte({
@@ -21,7 +25,7 @@ export default {
 			// we'll extract any component CSS out into
 			// a separate file - better for performance
 			css: css => {
-				css.write('docs/build/bundle.css');
+				css.write(css.filename, !production);
 			}
 		}),
 
@@ -35,6 +39,10 @@ export default {
 			dedupe: ['svelte']
 		}),
 		commonjs(),
+
+		html({
+			template: htmlTemplate,
+		}),
 
 		// In dev mode, call `npm run start` once
 		// the bundle has been generated
@@ -54,18 +62,31 @@ export default {
 };
 
 function serve() {
-	let started = false;
+	let server;
+
+	function toExit() {
+		if (server) server.kill(0);
+	}
 
 	return {
 		writeBundle() {
-			if (!started) {
-				started = true;
+			if (server) return;
+			server = require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
+				stdio: ['ignore', 'inherit', 'inherit'],
+				shell: true
+			});
 
-				require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
-					stdio: ['ignore', 'inherit', 'inherit'],
-					shell: true
-				});
-			}
+			process.on('SIGTERM', toExit);
+			process.on('exit', toExit);
 		}
 	};
+}
+
+function htmlTemplate({ attributes, bundle, files, publicPath, title }) {
+	const script = files.js.map(f =>
+		f.isEntry ? `<script defer src="${f.fileName}"></script>` : '').join('\n');
+	const css = files.css.map(f =>
+		f.type === 'asset' ? `<link rel="stylesheet" href="${f.fileName}">` : '').join('\n');
+	const template = readFileSync('src/index.html', { encoding: 'utf-8' });
+	return template.replace('${css}', css).replace('${script}', script);
 }
