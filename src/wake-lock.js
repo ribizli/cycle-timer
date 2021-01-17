@@ -19,7 +19,7 @@ export const requestWakeLock = async () => {
     return;
   }
   try {
-    if (!(wakelockOrVideo?.released ?? true)) return;
+    if (wakelockOrVideo && !wakelockOrVideo.released) return;
     wakelockOrVideo = await navigator.wakeLock.request('screen');
     _locked.set(true);
     wakelockOrVideo.addEventListener('release', () => {
