@@ -11,8 +11,8 @@ self.addEventListener('install', e => {
         './index.html',
         './manifest.json',
         './global.css',
-        './build/bundle.css',
-        './build/bundle.js',
+        './build/bundle-7709d583.css',
+        './build/bundle-7709d583.js',
       ]);
     })
   );
