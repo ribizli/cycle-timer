@@ -9,8 +9,8 @@
     started,
     round
   } from "./timer-store";
-  import { formatTime, timeInputValue } from "./utils";
-  import { requestWakeLock, releaseWakeLock } from './wake-lock';
+  import { timeInputValue } from "./utils";
+  import { locked, requestWakeLock, releaseWakeLock } from './wake-lock';
   import { timeInputMask } from './time-input-mask'
   import Countdown from "./Countdown.svelte";
 
@@ -148,6 +148,17 @@
     width: 24px;
     height: 24px;
   }
+
+  .wakelock {
+    display: none;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+  }
+
+  .wakelock.wakelock-on {
+    display: inline;
+  }
 </style>
 
 <main bind:offsetWidth={screenWidth}>
@@ -181,4 +192,5 @@
       </button>
     </div>
   </div>
+  <span class="wakelock" class:wakelock-on={$locked}>⏰</span>
 </main>

@@ -1,6 +1,12 @@
+import { writable, derived, get } from 'svelte/store';
+
+
 // The wake lock sentinel.
-let wakeLock = null;
-let video;
+let wakelockOrVideo;
+
+let _locked = writable(false);
+
+export const locked = { subscribe: _locked.subscribe };
 
 const supported = 'wakeLock' in navigator;
 
@@ -8,14 +14,17 @@ const supported = 'wakeLock' in navigator;
 export const requestWakeLock = async () => {
   if (!supported) {
     addVideo();
-    video.play();
+    wakelockOrVideo?.play();
+    _locked.set(true);
     return;
   }
   try {
-    if (wakeLock) await wakeLock.release();
-    wakeLock = await navigator.wakeLock.request('screen');
-    wakeLock.addEventListener('release', () => {
+    if (!(wakelockOrVideo?.released ?? true)) return;
+    wakelockOrVideo = await navigator.wakeLock.request('screen');
+    _locked.set(true);
+    wakelockOrVideo.addEventListener('release', () => {
       console.log('Screen Wake Lock was released');
+      _locked.set(false);
     });
     console.log('Screen Wake Lock is active');
   } catch (err) {
@@ -25,17 +34,18 @@ export const requestWakeLock = async () => {
 
 export const releaseWakeLock = async () => {
   if (!supported && video) {
-    video.pause();
+    wakelockOrVideo.pause();
+    _locked.set(false);
     return;
   }
-  if (!wakeLock) return;
-  await wakeLock.release();
-  wakeLock = null;
+  if (!wakelockOrVideo) return;
+  await wakelockOrVideo.release();
+  _locked.set(false);
 };
 
 
 function addVideo() {
-  if (video) return;
+  if (wakelockOrVideo) return;
 
   const addSourceToVideo = (element, src, type) => {
     var source = document.createElement('source');
@@ -44,13 +54,13 @@ function addVideo() {
     element.appendChild(source);
   }
 
-  video = document.createElement('video');
-  video.muted = true;
-  video.loop = true;
-  video.playsinline = true;
-  addSourceToVideo(video, 'video/blank.m4v');
-  addSourceToVideo(video, 'video/blank.ogv', 'video/ogg');
-  addSourceToVideo(video, 'video/blank.webm', 'video/webm');
-  video.style.visibility = 'hidden';
-  document.body.append(video);
+  wakelockOrVideo = document.createElement('video');
+  wakelockOrVideo.muted = true;
+  wakelockOrVideo.loop = true;
+  wakelockOrVideo.playsinline = true;
+  addSourceToVideo(wakelockOrVideo, 'video/blank.m4v');
+  addSourceToVideo(wakelockOrVideo, 'video/blank.ogv', 'video/ogg');
+  addSourceToVideo(wakelockOrVideo, 'video/blank.webm', 'video/webm');
+  wakelockOrVideo.style.visibility = 'hidden';
+  document.body.append(wakelockOrVideo);
 }
